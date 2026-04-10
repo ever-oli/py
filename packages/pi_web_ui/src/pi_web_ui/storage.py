@@ -269,6 +269,10 @@ class SessionsStore:
         return data  # Messages are stored as dicts
 
 
+# Alias for backward compatibility
+SessionStore = SessionsStore
+
+
 class SettingsStore:
     """Store for application settings."""
 

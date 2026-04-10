@@ -12,8 +12,8 @@ class HostConfig:
 
 @dataclass
 class DockerConfig:
-    type: str = "docker"
     container: str
+    type: str = "docker"
 
 
 SandboxConfig = Union[HostConfig, DockerConfig]

@@ -3,7 +3,7 @@
 from collections.abc import Callable
 from typing import Optional
 
-from .sandbox import Executor
+from ..sandbox import Executor, SandboxConfig
 from .tools_impl.attach import attach_tool, set_upload_function
 from .tools_impl.bash import create_bash_tool
 from .tools_impl.edit import create_edit_tool
