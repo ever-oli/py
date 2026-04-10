@@ -1,0 +1,25 @@
+{
+  "name": "example-tools",
+  "version": "1.0.0",
+  "description": "Example extension demonstrating custom tools for pi_coding_agent",
+  "author": "Pi Team",
+  "license": "MIT",
+  "main": "extension",
+  "tools": [
+    "create_calculator_tool",
+    "create_uuid_tool",
+    "create_qrcode_tool"
+  ],
+  "commands": [
+    "example_command"
+  ],
+  "hooks": {
+    "on_init": "on_extension_init"
+  },
+  "requires": [],
+  "python_dependencies": [],
+  "default_config": {
+    "precision": 2,
+    "show_steps": true
+  }
+}

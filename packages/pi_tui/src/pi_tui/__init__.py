@@ -1,0 +1,203 @@
+"""pi-tui - Terminal UI library with differential rendering for Python.
+
+This is a Python port of the pi-mono TypeScript TUI package.
+Provides efficient terminal rendering with buffer/screen diffing.
+"""
+
+from .ansi import AnsiCodes, AnsiCodeTracker
+from .buffer import Buffer, BufferDiff
+from .cell import Cell, CellAttributes
+from .components import (
+    AutocompleteItem,
+    AutocompleteSuggestions,
+    Box,
+    CodeBlock,
+    CombinedAutocompleteProvider,
+    Editor,
+    EditorOptions,
+    EditorTheme,
+    Heading,
+    HorizontalRule,
+    InlineCode,
+    Input,
+    InputTheme,
+    KillRing,
+    Link,
+    ListComponent,
+    Markdown,
+    Quote,
+    SelectItem,
+    SelectList,
+    SelectListLayoutOptions,
+    SelectListTheme,
+    SlashCommand,
+    Table,
+    Text,
+    UndoStack,
+)
+from .fuzzy import (
+    FuzzyMatch,
+    fuzzy_filter,
+    fuzzy_match,
+)
+from .keybindings import (
+    TUI_KEYBINDINGS,
+    Keybinding,
+    KeybindingDefinition,
+    KeybindingDefinitions,
+    KeybindingsConfig,
+    KeybindingsManager,
+    get_keybindings,
+    set_keybindings,
+)
+from .keys import (
+    Key,
+    KeyEventType,
+    KeyId,
+    decode_kitty_printable,
+    is_key_release,
+    is_key_repeat,
+    is_kitty_protocol_active,
+    matches_key,
+    parse_key,
+    set_kitty_protocol_active,
+)
+from .stdin_buffer import StdinBuffer
+from .terminal import MockTerminal, ProcessTerminal, Terminal
+from .terminal_image import (
+    CellDimensions,
+    ImageDimensions,
+    ImageRenderOptions,
+    ImageRenderResult,
+    TerminalCapabilities,
+    allocate_image_id,
+    detect_capabilities,
+    encode_iterm2,
+    encode_kitty,
+    get_capabilities,
+    is_image_line,
+    render_image,
+)
+from .tui import (
+    CURSOR_MARKER,
+    TUI,
+    Component,
+    Container,
+    Focusable,
+    OverlayAnchor,
+    OverlayHandle,
+    OverlayMargin,
+    OverlayOptions,
+    SizeValue,
+    is_focusable,
+)
+from .utils import (
+    apply_background_to_line,
+    extract_segments,
+    slice_by_column,
+    slice_with_width,
+    truncate_to_width,
+    visible_width,
+    wrap_text_with_ansi,
+)
+
+__version__ = "0.1.0"
+__all__ = [
+    # Core
+    "Cell",
+    "CellAttributes",
+    "Buffer",
+    "BufferDiff",
+    "Terminal",
+    "ProcessTerminal",
+    "MockTerminal",
+    # Keys
+    "Key",
+    "KeyId",
+    "KeyEventType",
+    "matches_key",
+    "parse_key",
+    "is_key_release",
+    "is_key_repeat",
+    "set_kitty_protocol_active",
+    "is_kitty_protocol_active",
+    "decode_kitty_printable",
+    # ANSI
+    "AnsiCodeTracker",
+    "AnsiCodes",
+    # Utils
+    "visible_width",
+    "truncate_to_width",
+    "wrap_text_with_ansi",
+    "slice_by_column",
+    "slice_with_width",
+    "extract_segments",
+    "apply_background_to_line",
+    # TUI
+    "TUI",
+    "Container",
+    "Component",
+    "Focusable",
+    "is_focusable",
+    "CURSOR_MARKER",
+    "OverlayOptions",
+    "OverlayHandle",
+    "OverlayAnchor",
+    "OverlayMargin",
+    "SizeValue",
+    # Input
+    "StdinBuffer",
+    # Keybindings
+    "Keybinding",
+    "KeybindingDefinition",
+    "KeybindingDefinitions",
+    "KeybindingsConfig",
+    "KeybindingsManager",
+    "TUI_KEYBINDINGS",
+    "get_keybindings",
+    "set_keybindings",
+    # Terminal Image
+    "TerminalCapabilities",
+    "CellDimensions",
+    "ImageDimensions",
+    "ImageRenderOptions",
+    "ImageRenderResult",
+    "get_capabilities",
+    "detect_capabilities",
+    "render_image",
+    "encode_kitty",
+    "encode_iterm2",
+    "is_image_line",
+    "allocate_image_id",
+    # Fuzzy
+    "FuzzyMatch",
+    "fuzzy_match",
+    "fuzzy_filter",
+    # Components
+    "Box",
+    "Text",
+    "Editor",
+    "EditorOptions",
+    "EditorTheme",
+    "SelectList",
+    "SelectItem",
+    "SelectListTheme",
+    "SelectListLayoutOptions",
+    "Input",
+    "InputTheme",
+    "KillRing",
+    "UndoStack",
+    "CombinedAutocompleteProvider",
+    "AutocompleteItem",
+    "SlashCommand",
+    "AutocompleteSuggestions",
+    "Markdown",
+    "CodeBlock",
+    "InlineCode",
+    "Quote",
+    "ListComponent",
+    "Heading",
+    "HorizontalRule",
+    "Link",
+    "Table",
+]

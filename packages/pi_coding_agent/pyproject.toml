@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling>=1.18.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pi-coding-agent"
+version = "0.2.0"
+description = "Coding assistant agent for Pi ecosystem with advanced tools and extensions"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "Pi Team", email = "team@pi.dev"},
+]
+keywords = ["pi", "coding", "agent", "assistant", "code", "tools", "extensions"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "pi-agent-core>=0.1.0",
+    "pi-ai>=0.1.0",
+    "pi-tui>=0.1.0",
+    "aiofiles>=23.0",
+    "tree-sitter>=0.21",
+    "gitpython>=3.1",
+    "pathspec>=0.12",
+    "watchdog>=4.0",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+# Web scraping tools
+browser = ["playwright>=1.40"]
+
+# Container management
+docker = ["docker>=7.0"]
+
+# Development tools
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=4.1",
+    "mypy>=1.8",
+    "ruff>=0.3.0",
+]
+
+# Syntax highlighting
+highlight = ["pygments>=2.17"]
+
+# All extras
+all = [
+    "pi-coding-agent[browser,docker,highlight]",
+]
+
+[project.scripts]
+pi-coding-agent = "pi_coding_agent.cli:main"
+pi = "pi_coding_agent.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pi_coding_agent"]
+
+[tool.hatch.version]
+path = "src/pi_coding_agent/__init__.py"
+pattern = '__version__ = "(?P<version>[^"]+)"'
