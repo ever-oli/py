@@ -27,7 +27,16 @@ classifiers = [
 path = "packages/pi_agent_core/src/pi_agent_core/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["packages/*/src/*"]
+packages = [
+    "packages/pi_ai/src/pi_ai",
+    "packages/pi_agent_core/src/pi_agent_core",
+    "packages/pi_tui/src/pi_tui",
+    "packages/pi_coding_agent/src/pi_coding_agent",
+    "packages/pi_mom/src/pi_mom",
+    "packages/pi_pods/src/pi_pods",
+    "packages/pi_web_ui/src/pi_web_ui",
+    "packages/io_cli/src/io_cli",
+]
 
 [tool.hatch.envs.default]
 dependencies = [
