@@ -235,6 +235,7 @@ USAGE:
   io [OPTIONS] [MESSAGE...]       Run coding agent (default)
   io cron [OPTIONS]               Manage scheduled tasks
   io gateway [OPTIONS]            Manage gateway
+  io session [OPTIONS]            Manage sub-agent sessions
 
 OPTIONS:
   -h, --help                      Show this help
@@ -266,6 +267,11 @@ GATEWAY OPTIONS:
   --register URL                  Register a node
   --unregister ID                 Unregister a node
 
+SESSION OPTIONS:
+  -l, --list                      List sub-agent sessions
+  --kill ID                       Kill a running session
+  --logs ID                       Show session details
+
 PROFILE OPTIONS:
   --profile NAME                  Switch to profile
   --list-profiles                 List all profiles
@@ -279,4 +285,5 @@ EXAMPLES:
   io -m openai/gpt-4o "Hello"     Use specific model
   io cron -l                      List cron jobs
   io gateway --start              Start gateway server
+  io session -l                   List sub-agent sessions
 """)

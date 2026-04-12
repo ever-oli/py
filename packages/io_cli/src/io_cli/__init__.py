@@ -24,6 +24,7 @@ from .constants import (
 from .cron import CronManager, CronTask, get_cron_manager
 from .gateway_client import GatewayClient, Node, get_gateway_client
 from .gateway_server import GatewayServer, create_gateway_server
+from .process import ManagedProcess, ProcessManager, get_process_manager, run_shell
 from .sessions import Session, SessionManager, get_session_manager, spawn_session
 
 __version__ = VERSION
@@ -58,4 +59,8 @@ __all__ = [
     "SessionManager",
     "get_session_manager",
     "spawn_session",
+    "ManagedProcess",
+    "ProcessManager",
+    "get_process_manager",
+    "run_shell",
 ]
