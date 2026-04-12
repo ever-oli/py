@@ -280,15 +280,15 @@ async def handle_profile_commands(args: Args) -> int | None:
 
 
 async def run_agent_mode(args: Args) -> int:
-    """Run the coding agent.
+    """Run the coding agent by delegating to pi_coding_agent.
 
     Args:
-        args: Parsed arguments
+        args: Parsed arguments with agent_args to pass through
 
     Returns:
         Exit code
     """
-    # Import pi_coding_agent here to avoid circular imports
+    # Check if pi_coding_agent is available
     try:
         from pi_coding_agent.cli.main import async_main as agent_async_main
     except ImportError:
@@ -296,45 +296,25 @@ async def run_agent_mode(args: Args) -> int:
         print("Run: pip install -e packages/pi_coding_agent", file=sys.stderr)
         return 1
 
-    # Convert io args to pi_coding_agent args
-    agent_args = []
+    # Check if models are available
+    try:
+        from pi_ai import get_models, register_built_in_api_providers
+        register_built_in_api_providers()
+        # Check if any models exist
+        has_models = False
+        for provider in ["faux", "openai-completions"]:
+            if get_models(provider):
+                has_models = True
+                break
+        if not has_models:
+            print("Warning: No AI models configured.", file=sys.stderr)
+            print("The pi_ai package needs models_generated.py", file=sys.stderr)
+            print("Run: io doctor  (to see diagnostics)", file=sys.stderr)
+    except Exception:
+        pass  # Let pi_coding_agent handle errors
 
-    if args.verbose:
-        agent_args.append("--verbose")
-    if args.model:
-        agent_args.extend(["--model", args.model])
-    if args.thinking:
-        agent_args.extend(["--thinking", args.thinking])
-    if args.tools:
-        for tool in args.tools:
-            agent_args.extend(["--tool", tool])
-    if args.no_tools:
-        agent_args.append("--no-tools")
-    if args.session:
-        agent_args.extend(["--session", args.session])
-    if args.continue_:
-        agent_args.append("--continue")
-    if args.resume:
-        agent_args.append("--resume")
-    if args.no_session:
-        agent_args.append("--no-session")
-    if args.offline:
-        agent_args.append("--offline")
-    if args.print_:
-        agent_args.append("--print")
-    if args.mode == "json":
-        agent_args.append("--json")
-    if args.mode == "rpc":
-        agent_args.append("--rpc")
-
-    # Add files and messages
-    for file_path in args.file_args:
-        agent_args.append(file_path)
-    for message in args.messages:
-        agent_args.append(message)
-
-    # Run the agent
-    return await agent_async_main(agent_args)
+    # Pass all agent_args directly to pi_coding_agent
+    return await agent_async_main(args.agent_args)
 
 
 async def async_main(args_list: list[str] | None = None) -> int:
@@ -352,6 +332,17 @@ async def async_main(args_list: list[str] | None = None) -> int:
     if args.version:
         print(f"io version {VERSION}")
         return 0
+
+    # Handle help
+    if args.command is None and not args.doctor:
+        from .args import print_help
+        print_help()
+        return 0
+
+    # Handle doctor
+    if args.doctor:
+        from .doctor import print_diagnostics
+        return print_diagnostics()
 
     # Load config
     reload_config()

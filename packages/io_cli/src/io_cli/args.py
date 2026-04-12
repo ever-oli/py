@@ -1,10 +1,11 @@
-"""Argument parsing for IO CLI."""
+"""Argument parsing for IO CLI - Simple approach."""
 
 from __future__ import annotations
 
-import argparse
+import sys
 from dataclasses import dataclass, field
-from typing import Any
+
+from .constants import VERSION
 
 
 @dataclass
@@ -15,39 +16,14 @@ class Args:
     verbose: bool = False
     config: dict[str, str] = field(default_factory=dict)
     version: bool = False
-    help: bool = False
 
-    # Command
-    command: str | None = None
-    subcommand: str | None = None
+    # Command detection
+    command: str | None = None  # 'cron', 'gateway', 'agent', or None
 
-    # Positional arguments
-    messages: list[str] = field(default_factory=list)
-    file_args: list[str] = field(default_factory=list)
+    # Agent passthrough args (raw args to pass to pi_coding_agent)
+    agent_args: list[str] = field(default_factory=list)
 
-    # Agent options
-    model: str | None = None
-    thinking: str | None = None
-    tools: list[str] | None = None
-    no_tools: bool = False
-    session: str | None = None
-    continue_: bool = False
-    resume: bool = False
-    no_session: bool = False
-    offline: bool = False
-
-    # Mode
-    mode: str = "interactive"  # interactive, print, json, rpc
-    print_: bool = False
-
-    # Profile commands
-    profile: str | None = None
-    list_profiles: bool = False
-    create_profile: str | None = None
-    delete_profile: str | None = None
-    list_config: bool = False
-
-    # Cron commands
+    # Cron specific
     cron_list: bool = False
     cron_add: bool = False
     cron_remove: str | None = None
@@ -57,7 +33,7 @@ class Args:
     cron_start: bool = False
     cron_stop: bool = False
 
-    # Gateway commands
+    # Gateway specific
     gateway_status: bool = False
     gateway_start: bool = False
     gateway_stop: bool = False
@@ -65,215 +41,218 @@ class Args:
     gateway_register: str | None = None
     gateway_unregister: str | None = None
 
-    # Diagnostics
-    diagnostics: list[dict[str, Any]] = field(default_factory=list)
-
-
-def create_parser() -> argparse.ArgumentParser:
-    """Create the argument parser."""
-    parser = argparse.ArgumentParser(
-        prog="io",
-        description="IO CLI - Hermes/Pi/Python Hybrid",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  io "Create a Python script..."     # Run agent with message
-  io --continue                      # Continue last session
-  io --model openai/gpt-4o           # Use specific model
-  io cron --list                     # List cron jobs
-  io gateway --start                 # Start gateway server
-        """,
-    )
-
-    parser.add_argument(
-        "--version",
-        action="store_true",
-        help="Show version and exit",
-    )
-    parser.add_argument(
-        "-v", "--verbose",
-        action="store_true",
-        help="Enable verbose output",
-    )
-    parser.add_argument(
-        "--config",
-        action="append",
-        metavar="KEY=VALUE",
-        help="Set configuration values",
-    )
-
-    # Model options
-    parser.add_argument(
-        "-m", "--model",
-        help="Model to use (provider/model format)",
-    )
-    parser.add_argument(
-        "--thinking",
-        choices=["minimal", "normal", "high", "extreme"],
-        help="Thinking level for the model",
-    )
-    parser.add_argument(
-        "--tools",
-        nargs="+",
-        help="Tools to enable",
-    )
-    parser.add_argument(
-        "--no-tools",
-        action="store_true",
-        help="Disable all tools",
-    )
-
-    # Session options
-    parser.add_argument(
-        "--session",
-        help="Session ID to resume",
-    )
-    parser.add_argument(
-        "--continue", "-c",
-        dest="continue_",
-        action="store_true",
-        help="Continue last session",
-    )
-    parser.add_argument(
-        "--resume",
-        action="store_true",
-        help="Interactively select session to resume",
-    )
-    parser.add_argument(
-        "--no-session",
-        action="store_true",
-        help="Don't save session",
-    )
-    parser.add_argument(
-        "--offline",
-        action="store_true",
-        help="Offline mode (skip version checks)",
-    )
-
-    # Mode options
-    parser.add_argument(
-        "--print",
-        dest="print_",
-        action="store_true",
-        help="Print mode (non-interactive)",
-    )
-    parser.add_argument(
-        "--json",
-        dest="mode",
-        action="store_const",
-        const="json",
-        help="Output JSON",
-    )
-    parser.add_argument(
-        "--rpc",
-        dest="mode",
-        action="store_const",
-        const="rpc",
-        help="RPC mode",
-    )
-
     # Profile commands
-    profile_group = parser.add_argument_group("Profile Commands")
-    profile_group.add_argument(
-        "--profile",
-        help="Switch to profile",
-    )
-    profile_group.add_argument(
-        "--list-profiles",
-        action="store_true",
-        help="List all profiles",
-    )
-    profile_group.add_argument(
-        "--create-profile",
-        metavar="NAME",
-        help="Create a new profile",
-    )
-    profile_group.add_argument(
-        "--delete-profile",
-        metavar="NAME",
-        help="Delete a profile",
-    )
-    profile_group.add_argument(
-        "--list-config",
-        action="store_true",
-        help="List configuration",
-    )
-
-    # Subcommands
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-
-    # Cron command
-    cron_parser = subparsers.add_parser(
-        "cron",
-        help="Manage scheduled tasks",
-        # Prevent parent conflicts
-    )
-    cron_parser.add_argument("-l", "--ls", dest="cron_list", action="store_true", help="List cron jobs")
-    cron_parser.add_argument("-a", "--add", dest="cron_add", action="store_true", help="Add a cron job")
-    cron_parser.add_argument("-r", "--remove", dest="cron_remove", metavar="ID", help="Remove a cron job")
-    cron_parser.add_argument("-e", "--enable", dest="cron_enable", metavar="ID", help="Enable a cron job")
-    cron_parser.add_argument("-d", "--disable", dest="cron_disable", metavar="ID", help="Disable a cron job")
-    cron_parser.add_argument("--logs", dest="cron_logs", metavar="ID", help="Show cron job logs")
-    cron_parser.add_argument("--start", dest="cron_start", action="store_true", help="Start cron scheduler")
-    cron_parser.add_argument("--stop", dest="cron_stop", action="store_true", help="Stop cron scheduler")
-
-    # Gateway command
-    gateway_parser = subparsers.add_parser("gateway", help="Manage gateway")
-    gateway_parser.add_argument("--status", dest="gateway_status", action="store_true", help="Show gateway status")
-    gateway_parser.add_argument("--start", dest="gateway_start", action="store_true", help="Start gateway server")
-    gateway_parser.add_argument("--stop", dest="gateway_stop", action="store_true", help="Stop gateway server")
-    gateway_parser.add_argument("--nodes", dest="gateway_nodes", action="store_true", help="List registered nodes")
-    gateway_parser.add_argument("--register", dest="gateway_register", metavar="URL", help="Register a node")
-    gateway_parser.add_argument("--unregister", dest="gateway_unregister", metavar="ID", help="Unregister a node")
-
-    # Agent command (default)
-    agent_parser = subparsers.add_parser("agent", help="Run coding agent (default)")
-    agent_parser.add_argument("messages", nargs="*", help="Messages to send to agent")
-    agent_parser.add_argument("files", nargs="*", help="Files to include")
-
-    return parser
+    profile: str | None = None
+    list_profiles: bool = False
+    create_profile: str | None = None
+    delete_profile: str | None = None
+    list_config: bool = False
+    # Doctor specific
+    doctor: bool = False
 
 
 def parse_args(args: list[str] | None = None) -> Args:
-    """Parse command line arguments.
+    """Parse command line arguments with manual subcommand detection.
 
-    Args:
-        args: Command line arguments (defaults to sys.argv)
-
-    Returns:
-        Parsed Args object
+    This avoids argparse subparser complexity by detecting the command
+    manually and delegating appropriately.
     """
-    parser = create_parser()
-    parsed = parser.parse_args(args)
+    if args is None:
+        args = sys.argv[1:]
 
-    # Convert to Args dataclass
     result = Args()
 
-    # Copy simple attributes
-    for field_name in Args.__dataclass_fields__:
-        if hasattr(parsed, field_name):
-            value = getattr(parsed, field_name)
-            if value is not None:
-                setattr(result, field_name, value)
+    # Known commands
+    known_commands = {"cron", "gateway", "agent"}
 
-    # Handle config key=value pairs
-    if parsed.config:
-        for item in parsed.config:
-            if "=" in item:
-                key, value = item.split("=", 1)
-                result.config[key] = value
+    # Empty args - agent mode with no message
+    if not args:
+        result.command = "agent"
+        return result
 
-    # Handle messages and files
-    if hasattr(parsed, "messages"):
-        result.messages = parsed.messages or []
+    # Check first argument for command
+    first = args[0]
 
-    if hasattr(parsed, "files"):
-        result.file_args = parsed.files or []
+    if first in ("-h", "--help"):
+        result.command = None  # Will show help
+        return result
+
+    if first == "--version":
+        result.version = True
+        return result
+
+    if first == "--doctor":
+        result.doctor = True
+        return result
+
+    if first == "-v" or first == "--verbose":
+        result.verbose = True
+        # Continue parsing
+
+    # Check for explicit command
+    if first in known_commands:
+        result.command = first
+        return _parse_command_args(result, first, args[1:])
+
+    # Check for flags that indicate non-agent mode
+    profile_flags = {
+        "--profile", "--list-profiles", "--create-profile",
+        "--delete-profile", "--list-config"
+    }
+    for flag in profile_flags:
+        if flag in args:
+            return _parse_profile_args(result, args)
+
+    # Default: agent mode - pass all args through
+    result.command = "agent"
+    result.agent_args = list(args)
+    return result
+
+
+def _parse_command_args(result: Args, command: str, args: list[str]) -> Args:
+    """Parse args for a known subcommand."""
+    if command == "cron":
+        return _parse_cron_args(result, args)
+    if command == "gateway":
+        return _parse_gateway_args(result, args)
+    if command == "agent":
+        result.agent_args = args
+        return result
+    return result
+
+
+def _parse_cron_args(result: Args, args: list[str]) -> Args:
+    """Parse cron subcommand args."""
+    i = 0
+    while i < len(args):
+        arg = args[i]
+
+        if arg in ("-l", "--ls", "--list"):
+            result.cron_list = True
+        elif arg in ("-a", "--add"):
+            result.cron_add = True
+        elif arg in ("-r", "--remove"):
+            result.cron_remove = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        elif arg in ("-e", "--enable"):
+            result.cron_enable = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        elif arg in ("-d", "--disable"):
+            result.cron_disable = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        elif arg == "--logs":
+            result.cron_logs = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        elif arg == "--start":
+            result.cron_start = True
+        elif arg == "--stop":
+            result.cron_stop = True
+        i += 1
+
+    return result
+
+
+def _parse_gateway_args(result: Args, args: list[str]) -> Args:
+    """Parse gateway subcommand args."""
+    i = 0
+    while i < len(args):
+        arg = args[i]
+
+        if arg == "--status":
+            result.gateway_status = True
+        elif arg == "--start":
+            result.gateway_start = True
+        elif arg == "--stop":
+            result.gateway_stop = True
+        elif arg == "--nodes":
+            result.gateway_nodes = True
+        elif arg == "--register":
+            result.gateway_register = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        elif arg == "--unregister":
+            result.gateway_unregister = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        i += 1
+
+    return result
+
+
+def _parse_profile_args(result: Args, args: list[str]) -> Args:
+    """Parse profile-related args."""
+    i = 0
+    while i < len(args):
+        arg = args[i]
+
+        if arg == "--verbose" or arg == "-v":
+            result.verbose = True
+        elif arg == "--profile":
+            result.profile = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        elif arg == "--list-profiles":
+            result.list_profiles = True
+        elif arg == "--create-profile":
+            result.create_profile = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        elif arg == "--delete-profile":
+            result.delete_profile = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        elif arg == "--list-config":
+            result.list_config = True
+        i += 1
 
     return result
 
 
 def print_help() -> None:
     """Print help message."""
-    parser = create_parser()
-    parser.print_help()
+    print(f"""io version {VERSION} - Hermes/Pi/Python Hybrid
+
+USAGE:
+  io [OPTIONS] [MESSAGE...]       Run coding agent (default)
+  io cron [OPTIONS]               Manage scheduled tasks
+  io gateway [OPTIONS]            Manage gateway
+
+OPTIONS:
+  -h, --help                      Show this help
+  --version                       Show version
+  -v, --verbose                   Enable verbose output
+  -m, --model MODEL               Model to use (provider/model format)
+  --thinking LEVEL                Thinking level (minimal/normal/high/extreme)
+  --session ID                    Session ID to resume
+  -c, --continue                  Continue last session
+  --resume                        Interactively select session to resume
+  --no-session                    Don't save session
+  --print                         Print mode (non-interactive)
+  --offline                       Offline mode
+
+CRON OPTIONS:
+  -l, --list                      List cron jobs
+  -a, --add                       Add a cron job
+  -r, --remove ID                 Remove a cron job
+  -e, --enable ID                 Enable a cron job
+  -d, --disable ID                Disable a cron job
+  --logs ID                       Show cron job logs
+  --start                         Start cron scheduler
+  --stop                          Stop cron scheduler
+
+GATEWAY OPTIONS:
+  --status                        Show gateway status
+  --start                         Start gateway server
+  --nodes                         List registered nodes
+  --register URL                  Register a node
+  --unregister ID                 Unregister a node
+
+PROFILE OPTIONS:
+  --profile NAME                  Switch to profile
+  --list-profiles                 List all profiles
+  --create-profile NAME           Create a new profile
+  --delete-profile NAME           Delete a profile
+  --list-config                   List configuration
+
+EXAMPLES:
+  io "Create a Python script..."  Run agent with message
+  io --continue                   Continue last session
+  io -m openai/gpt-4o "Hello"     Use specific model
+  io cron -l                      List cron jobs
+  io gateway --start              Start gateway server
+""")
