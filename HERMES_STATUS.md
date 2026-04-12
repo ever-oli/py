@@ -21,6 +21,13 @@
 - run_shell() for command execution
 - stdout/stderr capture
 
+## ✅ Phase 4: Skills System COMPLETE
+- **SkillRegistry** - Agent-created Python tools
+- Skills stored in `~/.io/skills/` as JSON + .py files
+- CLI: `io skills --list`, `--create`, `--show`, `--delete`
+- Skills executable via `registry.execute_skill()`
+- Convertible to tool definitions for models
+
 ## 📊 Code Stats
 ```
 packages/io_cli/src/io_cli/
@@ -37,9 +44,10 @@ packages/io_cli/src/io_cli/
 ├── gateway_client.py     - Gateway client
 ├── gateway_server.py     - Gateway server
 ├── process.py            - Process management
-└── sessions.py           - Sub-agent sessions
+├── sessions.py           - Sub-agent sessions
+└── skills.py             - Agent-created skills
 
-Total: ~2,100 lines
+Total: ~2,950 lines
 Dead code: 0
 Ruff warnings: 0
 Vulture warnings: 0
@@ -68,6 +76,12 @@ io session -l
 io session --kill ID
 io session --logs ID
 
+# Skills (agent-created tools)
+io skills -l
+io skills --create
+io skills --show ID
+io skills --delete ID
+
 # Profiles
 io --list-profiles
 io --create-profile myprofile
@@ -95,8 +109,28 @@ from io_cli import (
     # Processes
     run_shell,
     get_process_manager,
+    
+    # Skills
+    get_skill_registry,
+    Skill,
 )
 ```
+
+## Hermes Feature Parity
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| CLI | ✅ | Full implementation |
+| Cron | ✅ | Task scheduling |
+| Gateway | ✅ | Distributed nodes |
+| Sessions | ✅ | Sub-agent management |
+| Skills | ✅ | Agent-created tools |
+| Process mgmt | ✅ | Background processes |
+| Config | ✅ | YAML-based profiles |
+| Memory (SOUL.md) | ⚠️ | File exists, not integrated |
+| ACP | ❌ | Editor protocol not implemented |
+| Honcho | ❌ | AI memory not integrated |
+| Docker/Modal exec | ❌ | Local execution only |
 
 ## Known Issues
 
@@ -114,7 +148,9 @@ export OPENROUTER_API_KEY=sk-...
 
 1. **Generate models** for pi_ai from TypeScript
 2. **Integrate pi_web_ui** for web interface
-3. **Add more cron handlers** for different task types
-4. **Enhance gateway** with WebSocket support
+3. **Add ACP support** for editor integrations
+4. **Add Honcho integration** for AI-native memory
+5. **Add Docker/Modal execution** environments
 
 The io/py/hermes hybrid core is complete and functional.
+The Skills system is a major differentiator - agents can now create their own tools.
