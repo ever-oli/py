@@ -20,6 +20,7 @@ PROVIDER_ANTHROPIC = "anthropic"
 PROVIDER_OPENROUTER = "openrouter"
 PROVIDER_GOOGLE = "google"
 PROVIDER_FAUX = "faux"
+PROVIDER_KIMI = "kimi-coding"
 
 # API constants
 API_OPENAI_RESPONSES = "openai-responses"
@@ -27,6 +28,7 @@ API_OPENAI_COMPLETIONS = "openai-completions"
 API_ANTHROPIC_MESSAGES = "anthropic-messages"
 API_GOOGLE_GENERATIVE_AI = "google-generative-ai"
 API_FAUX = "faux"
+API_KIMI = "openai-completions"
 
 
 def _register_openai_models() -> None:
@@ -285,6 +287,33 @@ def _register_faux_models() -> None:
     )
 
 
+def _register_kimi_models() -> None:
+    """Register Kimi models."""
+    register_model(
+        provider=PROVIDER_KIMI,
+        model=Model(
+            id="kimi-k2.5",
+            api=API_KIMI,
+            provider=PROVIDER_KIMI,
+            name="Kimi K2.5",
+            base_url="https://api.moonshot.cn/v1",
+            capabilities=ModelCapabilities(
+                supports_tools=True,
+                supports_vision=True,
+                supports_json_mode=True,
+                supports_streaming=True,
+                supports_reasoning=False,
+                supports_cache_control=False,
+            ),
+            pricing=ModelPricing(
+                input=0.5,
+                output=1.0,
+            ),
+            context_window=256000,
+        ),
+    )
+
+
 def register_all_models() -> None:
     """Register all built-in models."""
     _register_openai_models()
@@ -292,3 +321,4 @@ def register_all_models() -> None:
     _register_openrouter_models()
     _register_google_models()
     _register_faux_models()
+    _register_kimi_models()
