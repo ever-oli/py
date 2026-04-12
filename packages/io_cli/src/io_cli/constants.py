@@ -22,10 +22,10 @@ GATEWAY_DIR = "gateway"
 
 def get_io_home() -> Path:
     """Get the IO home directory path.
-    
+
     Returns the path to the ~/.io directory (or $IO_HOME if set).
     Creates the directory if it doesn't exist.
-    
+
     Returns:
         Path to IO home directory
     """
@@ -35,7 +35,7 @@ def get_io_home() -> Path:
         home = Path(env_home).expanduser().resolve()
     else:
         home = Path.home() / DEFAULT_IO_HOME
-    
+
     # Create if doesn't exist
     home.mkdir(parents=True, exist_ok=True)
     return home
@@ -43,10 +43,10 @@ def get_io_home() -> Path:
 
 def get_io_subdir(subdir: str) -> Path:
     """Get a subdirectory within IO_HOME.
-    
+
     Args:
         subdir: Subdirectory name (e.g., 'sessions', 'logs')
-        
+
     Returns:
         Path to subdirectory
     """

@@ -2,7 +2,6 @@
 
 from .constants import APP_NAME, VERSION
 
-
 ASCII_BANNER = """
 ╔═══════════════════════════════════════════╗
 ║                                           ║
@@ -29,10 +28,10 @@ MINIMAL_BANNER = f"{APP_NAME} v{VERSION}"
 
 def get_banner(style: str = "simple") -> str:
     """Get the banner string.
-    
+
     Args:
         style: Banner style - 'ascii', 'simple', or 'minimal'
-        
+
     Returns:
         Banner string
     """

@@ -6,27 +6,25 @@ import argparse
 from dataclasses import dataclass, field
 from typing import Any
 
-from .constants import VERSION
-
 
 @dataclass
 class Args:
     """Parsed command line arguments."""
-    
+
     # Global flags
     verbose: bool = False
     config: dict[str, str] = field(default_factory=dict)
     version: bool = False
     help: bool = False
-    
+
     # Command
     command: str | None = None
     subcommand: str | None = None
-    
+
     # Positional arguments
     messages: list[str] = field(default_factory=list)
     file_args: list[str] = field(default_factory=list)
-    
+
     # Agent options
     model: str | None = None
     thinking: str | None = None
@@ -37,18 +35,18 @@ class Args:
     resume: bool = False
     no_session: bool = False
     offline: bool = False
-    
+
     # Mode
     mode: str = "interactive"  # interactive, print, json, rpc
     print_: bool = False
-    
+
     # Profile commands
     profile: str | None = None
     list_profiles: bool = False
     create_profile: str | None = None
     delete_profile: str | None = None
     list_config: bool = False
-    
+
     # Cron commands
     cron_list: bool = False
     cron_add: bool = False
@@ -58,7 +56,7 @@ class Args:
     cron_logs: str | None = None
     cron_start: bool = False
     cron_stop: bool = False
-    
+
     # Gateway commands
     gateway_status: bool = False
     gateway_start: bool = False
@@ -66,7 +64,7 @@ class Args:
     gateway_nodes: bool = False
     gateway_register: str | None = None
     gateway_unregister: str | None = None
-    
+
     # Diagnostics
     diagnostics: list[dict[str, Any]] = field(default_factory=list)
 
@@ -86,7 +84,7 @@ Examples:
   io gateway --start                 # Start gateway server
         """,
     )
-    
+
     parser.add_argument(
         "--version",
         action="store_true",
@@ -103,7 +101,7 @@ Examples:
         metavar="KEY=VALUE",
         help="Set configuration values",
     )
-    
+
     # Model options
     parser.add_argument(
         "-m", "--model",
@@ -124,7 +122,7 @@ Examples:
         action="store_true",
         help="Disable all tools",
     )
-    
+
     # Session options
     parser.add_argument(
         "--session",
@@ -151,7 +149,7 @@ Examples:
         action="store_true",
         help="Offline mode (skip version checks)",
     )
-    
+
     # Mode options
     parser.add_argument(
         "--print",
@@ -173,7 +171,7 @@ Examples:
         const="rpc",
         help="RPC mode",
     )
-    
+
     # Profile commands
     profile_group = parser.add_argument_group("Profile Commands")
     profile_group.add_argument(
@@ -200,13 +198,13 @@ Examples:
         action="store_true",
         help="List configuration",
     )
-    
+
     # Subcommands
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    
+
     # Cron command
     cron_parser = subparsers.add_parser(
-        "cron", 
+        "cron",
         help="Manage scheduled tasks",
         # Prevent parent conflicts
     )
@@ -218,7 +216,7 @@ Examples:
     cron_parser.add_argument("--logs", dest="cron_logs", metavar="ID", help="Show cron job logs")
     cron_parser.add_argument("--start", dest="cron_start", action="store_true", help="Start cron scheduler")
     cron_parser.add_argument("--stop", dest="cron_stop", action="store_true", help="Stop cron scheduler")
-    
+
     # Gateway command
     gateway_parser = subparsers.add_parser("gateway", help="Manage gateway")
     gateway_parser.add_argument("--status", dest="gateway_status", action="store_true", help="Show gateway status")
@@ -227,51 +225,51 @@ Examples:
     gateway_parser.add_argument("--nodes", dest="gateway_nodes", action="store_true", help="List registered nodes")
     gateway_parser.add_argument("--register", dest="gateway_register", metavar="URL", help="Register a node")
     gateway_parser.add_argument("--unregister", dest="gateway_unregister", metavar="ID", help="Unregister a node")
-    
+
     # Agent command (default)
     agent_parser = subparsers.add_parser("agent", help="Run coding agent (default)")
     agent_parser.add_argument("messages", nargs="*", help="Messages to send to agent")
     agent_parser.add_argument("files", nargs="*", help="Files to include")
-    
+
     return parser
 
 
 def parse_args(args: list[str] | None = None) -> Args:
     """Parse command line arguments.
-    
+
     Args:
         args: Command line arguments (defaults to sys.argv)
-        
+
     Returns:
         Parsed Args object
     """
     parser = create_parser()
     parsed = parser.parse_args(args)
-    
+
     # Convert to Args dataclass
     result = Args()
-    
+
     # Copy simple attributes
     for field_name in Args.__dataclass_fields__:
         if hasattr(parsed, field_name):
             value = getattr(parsed, field_name)
             if value is not None:
                 setattr(result, field_name, value)
-    
+
     # Handle config key=value pairs
     if parsed.config:
         for item in parsed.config:
             if "=" in item:
                 key, value = item.split("=", 1)
                 result.config[key] = value
-    
+
     # Handle messages and files
     if hasattr(parsed, "messages"):
         result.messages = parsed.messages or []
-    
+
     if hasattr(parsed, "files"):
         result.file_args = parsed.files or []
-    
+
     return result
 
 
