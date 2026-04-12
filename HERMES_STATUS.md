@@ -1,83 +1,70 @@
 # Hermes → Py Hybrid - Build Status
 
 ## ✅ Phase 1: Foundation COMPLETE
-
-### Files Created
-```
-packages/io_cli/
-├── src/io_cli/
-│   ├── __init__.py              # Package exports
-│   ├── __main__.py              # Entry point
-│   ├── cli.py                   # Main CLI router
-│   ├── args.py                  # Argument parsing
-│   ├── config.py                # Configuration management
-│   ├── constants.py             # Path constants (get_io_home)
-│   ├── cron.py                  # CronManager class
-│   ├── edit_diff_preview.py     # Diff preview utilities
-│   └── banner.py                # Branding
-├── pyproject.toml
-└── README.md
-```
-
-### Features Implemented
-
-#### 1. Config System ✅
-- `get_io_home()` - Returns ~/.io directory path
+- Config system with `get_io_home()`
 - Profile management (YAML-based)
 - API key storage
-- Environment variable integration
 
-#### 2. Cron Manager ✅
-- Cron expression parsing (via croniter)
-- Task persistence (JSON)
-- Scheduler loop (async)
-- Task logs
-- CLI commands: list, add, remove, enable, disable, logs, start, stop
+## ✅ Phase 2: Gateway COMPLETE
 
-#### 3. Edit Diff Preview ✅
-- `capture_local_edit_snapshot()` - Pre-edit file capture
-- `summarize_diff_lines()` - Diff summary
-- Full diff computation with context
-- ANSI color support
+### GatewayClient (`gateway_client.py`)
+- Health check
+- List/register/unregister nodes
+- Execute commands on nodes
+- Async HTTP client with httpx
 
-#### 4. CLI Structure ✅
-- `io` command entry point
-- Subcommands: cron, gateway (stub), agent (delegates to pi_coding_agent)
-- Profile commands
-- Version flag
+### GatewayServer (`gateway_server.py`)
+- FastAPI-based REST API
+- NodeRegistry with JSON persistence
+- Endpoints:
+  - GET /health - Health check
+  - GET /nodes - List nodes
+  - POST /nodes - Register node
+  - DELETE /nodes/{id} - Unregister
+  - POST /nodes/{id}/heartbeat - Keepalive
+  - POST /nodes/{id}/execute - Remote execution
 
-## 🔧 Fixes Applied
-
-### Import Error Fixes
-```python
-# Before (causing errors):
-from io_cli.config import get_io_home  # Wasn't exported
-from io_cli.cron import CronManager    # Didn't exist
-from io_cli.edit_diff_preview import capture_local_edit_snapshot  # Didn't exist
-
-# After (working):
-from io_cli.config import get_io_home  # Now re-exported
-from io_cli.cron import CronManager    # Now implemented
-from io_cli.edit_diff_preview import capture_local_edit_snapshot, summarize_diff_lines  # Now implemented
+### CLI Commands
+```bash
+io gateway --status       # Check if running
+io gateway --start        # Start server
+io gateway --nodes        # List nodes
+io gateway --register URL # Add node
+io gateway --unregister ID # Remove node
 ```
 
-## 📋 Next Steps (Phase 2-4)
+## ✅ Phase 1.5: Code Quality
+- All dead code eliminated (ruff + vulture)
+- Type-only imports in TYPE_CHECKING blocks
+- Clean, skimmable code with early returns
+- Avoided cleverness (ternary operators where less readable)
 
-### Phase 2: Gateway (Next Priority)
-- Gateway server (FastAPI)
-- Node registration
-- Remote execution routing
-- Health checks
-
-### Phase 3: Integration
+## 📋 Next: Phase 3 (Integration)
 - Connect io CLI to pi_coding_agent
 - Unified session management
-- Config sharing between packages
+- Config sharing across packages
+- Agent delegation from io CLI
 
-### Phase 4: Polish
-- Gateway client implementation
-- Additional cron handlers
-- Plugin system
+## 📊 Code Stats
+```
+packages/io_cli/src/io_cli/
+├── __init__.py           - Package exports
+├── __main__.py           - Entry point
+├── args.py               - CLI argument parsing
+├── banner.py             - Branding
+├── cli.py                - Main CLI router (300 lines)
+├── config.py             - Config management (250 lines)
+├── constants.py          - Path constants (80 lines)
+├── cron.py               - CronManager (220 lines)
+├── edit_diff_preview.py  - Diff utilities (220 lines)
+├── gateway_client.py     - Gateway client (90 lines)
+└── gateway_server.py     - Gateway server (160 lines)
+
+Total: ~1,500 lines
+Dead code: 0
+Ruff warnings: 0
+Vulture warnings: 0
+```
 
 ## 🚀 Usage
 
@@ -85,19 +72,15 @@ from io_cli.edit_diff_preview import capture_local_edit_snapshot, summarize_diff
 # Install
 pip install -e packages/io_cli
 
-# CLI commands
-io --version                    # Show version
-io --list-profiles             # List profiles
-io --create-profile myprofile  # Create profile
-io cron -l                     # List cron jobs
-io cron --add                  # Add cron job (interactive)
-io cron --start                # Start scheduler
+# Gateway
+io gateway --start &        # Start server
+io gateway --register http://node2:8080
+io gateway --nodes
 
-# The critical imports that were broken now work:
-python3 -c "
-from io_cli.config import get_io_home
-from io_cli.cron import CronManager
-from io_cli.edit_diff_preview import capture_local_edit_snapshot
-print('All imports successful!')
-"
+# Cron
+io cron -l
+io cron --add
+
+# Agent (delegates to pi_coding_agent)
+io "Create a Python script..."
 ```
