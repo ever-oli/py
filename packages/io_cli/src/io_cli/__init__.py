@@ -21,8 +21,10 @@ from .constants import (
     get_plugins_dir,
     get_sessions_dir,
 )
+from .cron import CronManager, CronTask, get_cron_manager
 from .gateway_client import GatewayClient, Node, get_gateway_client
 from .gateway_server import GatewayServer, create_gateway_server
+from .sessions import Session, SessionManager, get_session_manager, spawn_session
 
 __version__ = VERSION
 
@@ -49,4 +51,11 @@ __all__ = [
     "Node",
     "get_gateway_client",
     "create_gateway_server",
+    "CronManager",
+    "CronTask",
+    "get_cron_manager",
+    "Session",
+    "SessionManager",
+    "get_session_manager",
+    "spawn_session",
 ]

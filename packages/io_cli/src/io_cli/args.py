@@ -50,6 +50,11 @@ class Args:
     # Doctor specific
     doctor: bool = False
 
+    # Session specific
+    session_list: bool = False
+    session_kill: str | None = None
+    session_logs: str | None = None
+
 
 def parse_args(args: list[str] | None = None) -> Args:
     """Parse command line arguments with manual subcommand detection.
@@ -63,7 +68,7 @@ def parse_args(args: list[str] | None = None) -> Args:
     result = Args()
 
     # Known commands
-    known_commands = {"cron", "gateway", "agent"}
+    known_commands = {"cron", "gateway", "agent", "session"}
 
     # Empty args - agent mode with no message
     if not args:
@@ -115,9 +120,28 @@ def _parse_command_args(result: Args, command: str, args: list[str]) -> Args:
         return _parse_cron_args(result, args)
     if command == "gateway":
         return _parse_gateway_args(result, args)
+    if command == "session":
+        return _parse_session_args(result, args)
     if command == "agent":
         result.agent_args = args
         return result
+    return result
+
+
+def _parse_session_args(result: Args, args: list[str]) -> Args:
+    """Parse session subcommand args."""
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg in ("-l", "--list"):
+            result.session_list = True
+        elif arg == "--kill":
+            result.session_kill = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        elif arg == "--logs":
+            result.session_logs = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        i += 1
     return result
 
 

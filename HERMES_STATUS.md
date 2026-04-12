@@ -2,68 +2,79 @@
 
 ## ✅ Phase 1: Foundation COMPLETE
 - Config system with `get_io_home()`
-- Profile management (YAML-based)
-- API key storage
+- Profile management
+- CronManager with scheduling
+- Edit diff preview
 
 ## ✅ Phase 2: Gateway COMPLETE
+- GatewayClient (HTTP)
+- GatewayServer (FastAPI)
+- NodeRegistry with persistence
 
-### GatewayClient (`gateway_client.py`)
-- Health check
-- List/register/unregister nodes
-- Execute commands on nodes
-- Async HTTP client with httpx
+## ✅ Phase 2.5: Integration COMPLETE
 
-### GatewayServer (`gateway_server.py`)
-- FastAPI-based REST API
-- NodeRegistry with JSON persistence
-- Endpoints:
-  - GET /health - Health check
-  - GET /nodes - List nodes
-  - POST /nodes - Register node
-  - DELETE /nodes/{id} - Unregister
-  - POST /nodes/{id}/heartbeat - Keepalive
-  - POST /nodes/{id}/execute - Remote execution
-
-### CLI Commands
-```bash
-io gateway --status       # Check if running
-io gateway --start        # Start server
-io gateway --nodes        # List nodes
-io gateway --register URL # Add node
-io gateway --unregister ID # Remove node
+### CLI Structure
+```
+io --version              # Show version
+io --doctor               # Health diagnostics
+io cron -l                # List cron jobs
+io gateway --start        # Start gateway
+io "message" --print      # Run agent (delegates to pi_coding_agent)
 ```
 
-## ✅ Phase 1.5: Code Quality
-- All dead code eliminated (ruff + vulture)
-- Type-only imports in TYPE_CHECKING blocks
-- Clean, skimmable code with early returns
-- Avoided cleverness (ternary operators where less readable)
+### Diagnostics (`io doctor`)
+```
+✓ Package: io_cli
+✓ Package: pi_coding_agent
+✓ Package: pi_ai
+✓ Package: pi_agent_core
+✗ pi_ai models            # Needs models_generated.py
+✓ IO_HOME
+⚠ API Keys               # Set env vars
+```
 
-## 📋 Next: Phase 3 (Integration)
-- Connect io CLI to pi_coding_agent
-- Unified session management
-- Config sharing across packages
-- Agent delegation from io CLI
+## Code Quality
+- **Dead code**: 0 (vulture --min-confidence 80)
+- **Lint**: All pass (ruff --ignore E501,SIM108)
+- **Style**: Early returns, skimmable, no cleverness
+
+## Known Issues
+
+### pi_ai Missing Models
+The pi_ai package needs `models_generated.py` created from TypeScript:
+```python
+# packages/pi_ai/src/pi_ai/models_generated.py
+MODELS = {
+    "openai-completions": {...},
+    "anthropic-messages": {...},
+}
+```
+
+### Workaround
+Use environment variables for API keys:
+```bash
+export OPENROUTER_API_KEY=sk-...
+```
 
 ## 📊 Code Stats
 ```
 packages/io_cli/src/io_cli/
-├── __init__.py           - Package exports
-├── __main__.py           - Entry point
-├── args.py               - CLI argument parsing
-├── banner.py             - Branding
-├── cli.py                - Main CLI router (300 lines)
-├── config.py             - Config management (250 lines)
-├── constants.py          - Path constants (80 lines)
-├── cron.py               - CronManager (220 lines)
-├── edit_diff_preview.py  - Diff utilities (220 lines)
+├── __init__.py           - Package exports (40 lines)
+├── __main__.py           - Entry point (5 lines)
+├── args.py               - Simple arg parsing (170 lines)
+├── banner.py             - Branding (30 lines)
+├── cli.py                - Main router (120 lines)
+├── config.py             - Config management (140 lines)
+├── constants.py          - Path constants (60 lines)
+├── cron.py               - CronManager (180 lines)
+├── doctor.py             - Diagnostics (140 lines)
+├── edit_diff_preview.py  - Diff utilities (190 lines)
 ├── gateway_client.py     - Gateway client (90 lines)
-└── gateway_server.py     - Gateway server (160 lines)
+└── gateway_server.py     - Gateway server (150 lines)
 
-Total: ~1,500 lines
-Dead code: 0
-Ruff warnings: 0
-Vulture warnings: 0
+Total: ~1,300 lines
+Average file: ~110 lines
+Max function: ~50 lines
 ```
 
 ## 🚀 Usage
@@ -72,15 +83,18 @@ Vulture warnings: 0
 # Install
 pip install -e packages/io_cli
 
-# Gateway
-io gateway --start &        # Start server
-io gateway --register http://node2:8080
-io gateway --nodes
+# Check health
+io --doctor
 
 # Cron
 io cron -l
 io cron --add
 
-# Agent (delegates to pi_coding_agent)
-io "Create a Python script..."
+# Gateway
+io gateway --start
+io gateway --nodes
+
+# Agent (requires pi_* packages with models)
+io "Hello world"
+io --continue
 ```

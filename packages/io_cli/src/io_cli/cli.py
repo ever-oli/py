@@ -215,6 +215,69 @@ async def handle_gateway_commands(args: Args) -> int | None:
     return 0
 
 
+async def handle_session_commands(args: Args) -> int | None:
+    """Handle session-related CLI commands.
+
+    Returns:
+        Exit code if handled, None otherwise
+    """
+    if args.command != "session":
+        return None
+
+    from .sessions import get_session_manager
+
+    manager = get_session_manager()
+
+    if args.session_list:
+        sessions = manager.list_sessions()
+        if not sessions:
+            print("No sub-agent sessions.")
+            return 0
+
+        print(f"{'ID':<12} {'Label':<20} {'Status':<12} {'Task':<30}")
+        print("-" * 80)
+        for session in sessions[:20]:  # Limit to 20
+            label = session.label or "-"
+            if len(label) > 18:
+                label = label[:15] + "..."
+            task = session.task[:28] if len(session.task) > 28 else session.task
+            print(f"{session.id:<12} {label:<20} {session.status:<12} {task}")
+        return 0
+
+    if args.session_kill:
+        if manager.kill_session(args.session_kill):
+            print(f"Killed session: {args.session_kill}")
+            return 0
+        else:
+            print(f"Session not found or not running: {args.session_kill}", file=sys.stderr)
+            return 1
+
+    if args.session_logs:
+        session = manager.get_session(args.session_logs)
+        if not session:
+            print(f"Session not found: {args.session_logs}", file=sys.stderr)
+            return 1
+
+        print(f"Session: {session.id}")
+        print(f"  Label: {session.label or '-'}")
+        print(f"  Status: {session.status}")
+        print(f"  Task: {session.task}")
+        print(f"  Created: {session.created_at}")
+        print(f"  Updated: {session.updated_at}")
+        if session.error:
+            print(f"  Error: {session.error}")
+        if session.result:
+            print(f"  Result: {session.result}")
+        return 0
+
+    # Default: show session help
+    print("Session commands:")
+    print("  io session -l, --list     List sub-agent sessions")
+    print("  io session --kill ID      Kill a running session")
+    print("  io session --logs ID      Show session details")
+    return 0
+
+
 async def handle_profile_commands(args: Args) -> int | None:
     """Handle profile-related CLI commands.
 
@@ -349,6 +412,11 @@ async def async_main(args_list: list[str] | None = None) -> int:
 
     # Handle profile commands
     result = await handle_profile_commands(args)
+    if result is not None:
+        return result
+
+    # Handle session commands
+    result = await handle_session_commands(args)
     if result is not None:
         return result
 
