@@ -93,6 +93,10 @@ from .utils.validation import validate_tool_arguments, validate_tool_call
 # Register providers on module load
 register_built_in_api_providers()
 
+# Register models on module load
+from .models_generated import register_all_models
+register_all_models()
+
 
 def stream(
     model: Model,

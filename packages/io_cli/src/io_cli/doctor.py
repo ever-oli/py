@@ -36,13 +36,10 @@ def check_package_installed(package_name: str) -> CheckResult:
 def check_pi_ai_models() -> CheckResult:
     """Check if pi_ai has models configured."""
     try:
-        from pi_ai import get_models, register_built_in_api_providers
-        register_built_in_api_providers()
+        from pi_ai import get_providers, get_models
 
-        total_models = 0
-        for provider in ["faux", "openai-completions", "anthropic-messages"]:
-            models = get_models(provider)
-            total_models += len(models)
+        providers = get_providers()
+        total_models = sum(len(get_models(p)) for p in providers)
 
         if total_models == 0:
             return CheckResult(
@@ -55,7 +52,7 @@ def check_pi_ai_models() -> CheckResult:
         return CheckResult(
             name="pi_ai models",
             status="ok",
-            message=f"{total_models} models available",
+            message=f"{total_models} models available across {len(providers)} providers",
         )
     except Exception as e:
         return CheckResult(
