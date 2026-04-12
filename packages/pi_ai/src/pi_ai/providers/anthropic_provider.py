@@ -677,15 +677,15 @@ def _build_params(
         if cache_control:
             system[0]["cache_control"] = cache_control
 
-        if context.system_prompt:
-            sys_msg = {"type": "text", "text": context.system_prompt}
+        if context.system:
+            sys_msg = {"type": "text", "text": context.system}
             if cache_control:
                 sys_msg["cache_control"] = cache_control
             system.append(sys_msg)
 
         params["system"] = system
-    elif context.system_prompt:
-        sys_msg = {"type": "text", "text": context.system_prompt}
+    elif context.system:
+        sys_msg = {"type": "text", "text": context.system}
         if cache_control:
             sys_msg["cache_control"] = cache_control
         params["system"] = [sys_msg]

@@ -331,7 +331,7 @@ def _build_request_body(
         "model": model.id,
         "store": False,
         "stream": True,
-        "instructions": context.system_prompt,
+        "instructions": context.system,
         "input": messages,
         "text": {"verbosity": options.text_verbosity if options else "medium"},
         "include": ["reasoning.encrypted_content"],

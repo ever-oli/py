@@ -10,20 +10,18 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from ..types import (
-        AssistantMessage,
         Context,
         Model,
         SimpleStreamOptions,
-        StopReason,
         StreamOptions,
-        TextContent,
-        ThinkingContent,
         Tool,
     )
 
 from ..event_stream import AssistantMessageEventStream
 from ..models import calculate_cost, supports_xhigh
 from ..types import (
+    AssistantMessage,
+    Cost,
     DoneEvent,
     ErrorEvent,
     StartEvent,
@@ -122,10 +120,12 @@ def stream_openai_completions(
                 cache_read=0,
                 cache_write=0,
                 total_tokens=0,
-                cost={"input": 0, "output": 0, "cache_read": 0, "cache_write": 0, "total": 0},
+                cost=Cost(),
             ),
             stop_reason=StopReason.STOP,
         )
+
+        signal = None  # Initialize for exception handling
 
         try:
             import httpx
@@ -145,7 +145,7 @@ def stream_openai_completions(
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
             }
-            if model.headers:
+            if getattr(model, "headers", None):
                 headers.update(model.headers)
             if getattr(options, "headers", None):
                 headers.update(options.headers)
@@ -460,7 +460,7 @@ def _create_client(
                 "OpenAI API key is required. Set OPENAI_API_KEY or pass it as an argument."
             )
 
-    headers = dict(model.headers) if model.headers else {}
+    headers = dict(model.headers) if getattr(model, "headers", None) else {}
 
     # GitHub Copilot headers
     if model.provider == "github-copilot":
@@ -614,10 +614,10 @@ def _convert_messages(
     transformed = transform_messages(context.messages, model, normalize_tool_call_id)
 
     # Add system prompt
-    if context.system_prompt:
+    if context.system:
         use_developer = model.reasoning and compat.get("supports_developer_role", True)
         role = "developer" if use_developer else "system"
-        params.append({"role": role, "content": context.system_prompt})
+        params.append({"role": role, "content": context.system})
 
     last_role: str | None = None
 

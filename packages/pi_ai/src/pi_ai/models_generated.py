@@ -38,6 +38,7 @@ def _register_openai_models() -> None:
             api=API_OPENAI_RESPONSES,
             provider=PROVIDER_OPENAI,
             name="GPT-4o",
+            base_url="https://api.openai.com/v1",
             capabilities=ModelCapabilities(
                 supports_tools=True,
                 supports_vision=True,
@@ -61,6 +62,7 @@ def _register_openai_models() -> None:
             api=API_OPENAI_RESPONSES,
             provider=PROVIDER_OPENAI,
             name="GPT-4o Mini",
+            base_url="https://api.openai.com/v1",
             capabilities=ModelCapabilities(
                 supports_tools=True,
                 supports_vision=True,
@@ -84,6 +86,7 @@ def _register_openai_models() -> None:
             api=API_OPENAI_RESPONSES,
             provider=PROVIDER_OPENAI,
             name="o3 Mini",
+            base_url="https://api.openai.com/v1",
             capabilities=ModelCapabilities(
                 supports_tools=True,
                 supports_vision=False,
@@ -164,6 +167,7 @@ def _register_openrouter_models() -> None:
             api=API_OPENAI_COMPLETIONS,
             provider=PROVIDER_OPENROUTER,
             name="GPT-4o Mini (via OpenRouter)",
+            base_url="https://openrouter.ai/api/v1",
             capabilities=ModelCapabilities(
                 supports_tools=True,
                 supports_vision=True,
@@ -187,6 +191,7 @@ def _register_openrouter_models() -> None:
             api=API_OPENAI_COMPLETIONS,
             provider=PROVIDER_OPENROUTER,
             name="Claude 3.5 Sonnet (via OpenRouter)",
+            base_url="https://openrouter.ai/api/v1",
             capabilities=ModelCapabilities(
                 supports_tools=True,
                 supports_vision=True,
@@ -210,6 +215,7 @@ def _register_openrouter_models() -> None:
             api=API_OPENAI_COMPLETIONS,
             provider=PROVIDER_OPENROUTER,
             name="Gemini 2.0 Flash (via OpenRouter)",
+            base_url="https://openrouter.ai/api/v1",
             capabilities=ModelCapabilities(
                 supports_tools=True,
                 supports_vision=True,
