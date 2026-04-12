@@ -278,6 +278,105 @@ async def handle_session_commands(args: Args) -> int | None:
     return 0
 
 
+async def handle_skills_commands(args: Args) -> int | None:
+    """Handle skills-related CLI commands.
+
+    Returns:
+        Exit code if handled, None otherwise
+    """
+    if args.command != "skills":
+        return None
+
+    from .skills import get_skill_registry
+
+    registry = get_skill_registry()
+
+    if args.skills_list:
+        skills = registry.list_skills()
+        if not skills:
+            print("No skills created yet.")
+            print("Create one with: io skills --create")
+            return 0
+
+        print(f"{'ID':<20} {'Name':<25} {'Uses':<6} {'Description'}")
+        print("-" * 80)
+        for skill in skills:
+            desc = skill.description[:35] if len(skill.description) > 35 else skill.description
+            print(f"{skill.id:<20} {skill.name:<25} {skill.usage_count:<6} {desc}")
+        return 0
+
+    if args.skills_create:
+        print("Create a new skill (interactive):")
+        name = input("Name (e.g., 'web_search'): ").strip()
+        if not name:
+            print("Error: Name is required.", file=sys.stderr)
+            return 1
+
+        description = input("Description: ").strip()
+
+        print("Enter Python code (end with Ctrl+D or type 'END' on new line):")
+        lines = []
+        while True:
+            try:
+                line = input()
+                if line == "END":
+                    break
+                lines.append(line)
+            except EOFError:
+                break
+
+        code = "\n".join(lines)
+        if not code.strip():
+            print("Error: Code is required.", file=sys.stderr)
+            return 1
+
+        try:
+            skill = registry.create_skill(
+                name=name,
+                description=description,
+                code=code,
+            )
+            print(f"Created skill: {skill.id}")
+            print(f"Edit at: ~/.io/skills/{skill.id}.py")
+        except ValueError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+        return 0
+
+    if args.skills_show:
+        skill = registry.get_skill(args.skills_show)
+        if not skill:
+            print(f"Skill not found: {args.skills_show}", file=sys.stderr)
+            return 1
+
+        print(f"Skill: {skill.name}")
+        print(f"ID: {skill.id}")
+        print(f"Description: {skill.description}")
+        print(f"Usage count: {skill.usage_count}")
+        print(f"Created: {skill.created_at}")
+        print()
+        print("Code:")
+        print("-" * 40)
+        print(skill.code)
+        return 0
+
+    if args.skills_delete:
+        if registry.delete_skill(args.skills_delete):
+            print(f"Deleted skill: {args.skills_delete}")
+            return 0
+        else:
+            print(f"Skill not found: {args.skills_delete}", file=sys.stderr)
+            return 1
+
+    # Default: show skills help
+    print("Skills commands:")
+    print("  io skills -l, --list      List all skills")
+    print("  io skills -c, --create    Create a new skill")
+    print("  io skills --show ID       Show skill details")
+    print("  io skills --delete ID     Delete a skill")
+    return 0
+
+
 async def handle_profile_commands(args: Args) -> int | None:
     """Handle profile-related CLI commands.
 
@@ -417,6 +516,11 @@ async def async_main(args_list: list[str] | None = None) -> int:
 
     # Handle session commands
     result = await handle_session_commands(args)
+    if result is not None:
+        return result
+
+    # Handle skills commands
+    result = await handle_skills_commands(args)
     if result is not None:
         return result
 

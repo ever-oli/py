@@ -26,6 +26,7 @@ from .gateway_client import GatewayClient, Node, get_gateway_client
 from .gateway_server import GatewayServer, create_gateway_server
 from .process import ManagedProcess, ProcessManager, get_process_manager, run_shell
 from .sessions import Session, SessionManager, get_session_manager, spawn_session
+from .skills import Skill, SkillRegistry, get_skill_registry
 
 __version__ = VERSION
 
@@ -63,4 +64,7 @@ __all__ = [
     "ProcessManager",
     "get_process_manager",
     "run_shell",
+    "Skill",
+    "SkillRegistry",
+    "get_skill_registry",
 ]

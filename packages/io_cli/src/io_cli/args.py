@@ -55,6 +55,14 @@ class Args:
     session_kill: str | None = None
     session_logs: str | None = None
 
+    # Skills specific
+    skills_list: bool = False
+    skills_create: bool = False
+    skills_edit: str | None = None
+    skills_delete: str | None = None
+    skills_show: str | None = None
+    skills_run: str | None = None
+
 
 def parse_args(args: list[str] | None = None) -> Args:
     """Parse command line arguments with manual subcommand detection.
@@ -68,7 +76,7 @@ def parse_args(args: list[str] | None = None) -> Args:
     result = Args()
 
     # Known commands
-    known_commands = {"cron", "gateway", "agent", "session"}
+    known_commands = {"cron", "gateway", "agent", "session", "skills"}
 
     # Empty args - agent mode with no message
     if not args:
@@ -122,9 +130,36 @@ def _parse_command_args(result: Args, command: str, args: list[str]) -> Args:
         return _parse_gateway_args(result, args)
     if command == "session":
         return _parse_session_args(result, args)
+    if command == "skills":
+        return _parse_skills_args(result, args)
     if command == "agent":
         result.agent_args = args
         return result
+    return result
+
+
+def _parse_skills_args(result: Args, args: list[str]) -> Args:
+    """Parse skills subcommand args."""
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg in ("-l", "--list"):
+            result.skills_list = True
+        elif arg in ("-c", "--create"):
+            result.skills_create = True
+        elif arg in ("-e", "--edit"):
+            result.skills_edit = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        elif arg == "--delete":
+            result.skills_delete = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        elif arg == "--show":
+            result.skills_show = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        elif arg == "--run":
+            result.skills_run = args[i + 1] if i + 1 < len(args) else None
+            i += 1
+        i += 1
     return result
 
 
