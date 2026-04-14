@@ -37,7 +37,7 @@ def build_base_options(
 
     return StreamOptions(
         temperature=options.temperature if options else None,
-        max_tokens=options.max_tokens if options else min(model.max_tokens, 32000),
+        max_tokens=options.max_tokens if options else min(model.context_window, 32000),
         signal=options.signal if options else None,
         api_key=api_key or (options.api_key if options else None),
         cache_retention=options.cache_retention if options else None,

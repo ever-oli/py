@@ -162,6 +162,62 @@ def _register_anthropic_models() -> None:
 
 def _register_openrouter_models() -> None:
     """Register OpenRouter models."""
+    # FREE TIER MODELS (rate limited, $0)
+    free_models = [
+        ("google/gemma-4-26b-a4b-it:free", "Gemma 4 26B (Free)", 128000),
+        ("nvidia/nemotron-3-nano-30b-a3b:free", "Nemotron 3 Nano (Free)", 128000),
+        ("liquid/lfm-2.5-1.2b-instruct:free", "Liquid LFM 1.2B (Free)", 32768),
+    ]
+    
+    for model_id, name, context in free_models:
+        register_model(
+            provider=PROVIDER_OPENROUTER,
+            model=Model(
+                id=model_id,
+                api=API_OPENAI_COMPLETIONS,
+                provider=PROVIDER_OPENROUTER,
+                name=name,
+                base_url="https://openrouter.ai/api/v1",
+                capabilities=ModelCapabilities(
+                    supports_tools=True,
+                    supports_vision=False,
+                    supports_json_mode=True,
+                    supports_streaming=True,
+                    supports_reasoning=False,
+                    supports_cache_control=False,
+                ),
+                pricing=ModelPricing(
+                    input=0.0,
+                    output=0.0,
+                ),
+                context_window=context,
+            ),
+        )
+
+    register_model(
+        provider=PROVIDER_OPENROUTER,
+        model=Model(
+            id="meta-llama/llama-3.3-70b-instruct:free",
+            api=API_OPENAI_COMPLETIONS,
+            provider=PROVIDER_OPENROUTER,
+            name="Llama 3.3 70B (Free)",
+            base_url="https://openrouter.ai/api/v1",
+            capabilities=ModelCapabilities(
+                supports_tools=True,
+                supports_vision=False,
+                supports_json_mode=True,
+                supports_streaming=True,
+                supports_reasoning=False,
+                supports_cache_control=False,
+            ),
+            pricing=ModelPricing(
+                input=0.0,
+                output=0.0,
+            ),
+            context_window=128000,
+        ),
+    )
+
     register_model(
         provider=PROVIDER_OPENROUTER,
         model=Model(

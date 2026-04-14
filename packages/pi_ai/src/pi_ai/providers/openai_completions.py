@@ -144,6 +144,8 @@ def stream_openai_completions(
             headers = {
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
+                "HTTP-Referer": "https://localhost",
+                "X-Title": "PyHybrid",
             }
             if getattr(model, "headers", None):
                 headers.update(model.headers)
