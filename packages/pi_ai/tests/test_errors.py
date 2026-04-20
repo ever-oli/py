@@ -30,10 +30,15 @@ class TestErrorHandling:
 
             stream = stream_openai_completions(model, context)
             
-            # Should raise timeout error when iterating
-            with pytest.raises((asyncio.TimeoutError, Exception)):
-                async for _ in stream:
-                    pass
+            # Errors are captured as ErrorEvent, not raised
+            events = []
+            async for event in stream:
+                events.append(event)
+            
+            # Should have an error event
+            assert len(events) > 0
+            assert events[-1].type == "error"
+            assert "timed out" in events[-1].error.error_message.lower() or "timeout" in events[-1].error.error_message.lower()
 
     @pytest.mark.asyncio
     async def test_connection_error(self):
@@ -53,9 +58,15 @@ class TestErrorHandling:
 
             stream = stream_openai_completions(model, context)
             
-            with pytest.raises((ConnectionError, Exception)):
-                async for _ in stream:
-                    pass
+            # Errors are captured as ErrorEvent, not raised
+            events = []
+            async for event in stream:
+                events.append(event)
+            
+            # Should have an error event
+            assert len(events) > 0
+            assert events[-1].type == "error"
+            assert "connect" in events[-1].error.error_message.lower() or "failed" in events[-1].error.error_message.lower()
 
     @pytest.mark.asyncio
     async def test_http_500_error(self):
@@ -80,9 +91,15 @@ class TestErrorHandling:
 
             stream = stream_anthropic(model, context)
             
-            with pytest.raises(Exception):
-                async for _ in stream:
-                    pass
+            # Errors are captured as ErrorEvent, not raised
+            events = []
+            async for event in stream:
+                events.append(event)
+            
+            # Should have an error event
+            assert len(events) > 0
+            assert events[-1].type == "error"
+            assert "500" in events[-1].error.error_message.lower() or "internal" in events[-1].error.error_message.lower()
 
     @pytest.mark.asyncio
     async def test_http_401_unauthorized(self):
@@ -107,9 +124,15 @@ class TestErrorHandling:
 
             stream = stream_openai_completions(model, context)
             
-            with pytest.raises(Exception):
-                async for _ in stream:
-                    pass
+            # Errors are captured as ErrorEvent, not raised
+            events = []
+            async for event in stream:
+                events.append(event)
+            
+            # Should have an error event
+            assert len(events) > 0
+            assert events[-1].type == "error"
+            assert "401" in events[-1].error.error_message.lower() or "unauthorized" in events[-1].error.error_message.lower()
 
     @pytest.mark.asyncio
     async def test_http_403_forbidden(self):
@@ -134,9 +157,15 @@ class TestErrorHandling:
 
             stream = stream_openai_completions(model, context)
             
-            with pytest.raises(Exception):
-                async for _ in stream:
-                    pass
+            # Errors are captured as ErrorEvent, not raised
+            events = []
+            async for event in stream:
+                events.append(event)
+            
+            # Should have an error event
+            assert len(events) > 0
+            assert events[-1].type == "error"
+            assert "403" in events[-1].error.error_message.lower() or "forbidden" in events[-1].error.error_message.lower()
 
 
 class TestValidationErrors:
