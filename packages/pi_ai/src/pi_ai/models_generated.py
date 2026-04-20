@@ -197,6 +197,30 @@ def _register_openrouter_models() -> None:
     register_model(
         provider=PROVIDER_OPENROUTER,
         model=Model(
+            id="openrouter/elephant-alpha",
+            api=API_OPENAI_COMPLETIONS,
+            provider=PROVIDER_OPENROUTER,
+            name="Elephant Alpha (via OpenRouter)",
+            base_url="https://openrouter.ai/api/v1",
+            capabilities=ModelCapabilities(
+                supports_tools=True,
+                supports_vision=False,
+                supports_json_mode=True,
+                supports_streaming=True,
+                supports_reasoning=False,
+                supports_cache_control=True,
+            ),
+            pricing=ModelPricing(
+                input=0.0,
+                output=0.0,
+            ),
+            context_window=256000,
+        ),
+    )
+
+    register_model(
+        provider=PROVIDER_OPENROUTER,
+        model=Model(
             id="meta-llama/llama-3.3-70b-instruct:free",
             api=API_OPENAI_COMPLETIONS,
             provider=PROVIDER_OPENROUTER,
