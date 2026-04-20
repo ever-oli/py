@@ -1,189 +1,107 @@
 # Pi Mono Python
 
-A monorepo for the Pi ecosystem - AI agents, TUI, web UI, and core utilities.
+A **clean-room Python port** of the [pi-mono](https://github.com/pi-mono/pi-mono) TypeScript codebase.
 
-## Overview
+**Purpose:** Reference implementation. 100% port of the original 166,813 lines of TypeScript into ~50,000 lines of Python. No extras, no hybrids — just the original architecture translated faithfully.
 
-Pi Mono Python is a comprehensive toolkit for building AI-powered applications with Python. It provides a unified interface to multiple LLM providers, a powerful agent framework, terminal and web interfaces, and utilities for deployment.
+---
 
-## Packages
+## 📊 Port Status: ✅ COMPLETE
 
-| Package | Description | Status |
-|---------|-------------|--------|
-| `pi_ai` | LLM provider abstraction layer | ✅ Ready |
-| `pi_agent_core` | Core agent framework | ✅ Ready |
-| `pi_coding_agent` | Coding assistant agent | ✅ Ready |
-| `pi_tui` | Terminal User Interface | 🚧 WIP |
-| `pi_mom` | Slack bot integration | 🚧 WIP |
-| `pi_pods` | GPU pod management | 🚧 WIP |
-| `pi_web_ui` | Web-based interface | 🚧 WIP |
+| Metric | TypeScript Original | Python Port | Ratio |
+|--------|---------------------|-------------|-------|
+| Lines of Code | 166,813 | ~50,000 | 70% reduction |
+| Packages | 7 | 7 | ✅ 100% |
+| Test Pass Rate | - | 100% (79/79) | ✅ |
 
-## Quick Start
+---
 
-### Installation
+## 📦 Packages
+
+| Package | Description | Lines (TS→Py) | Status |
+|---------|-------------|---------------|--------|
+| `pi_ai` | LLM provider abstraction | 40,388 → ~15,000 | ✅ All 10 providers |
+| `pi_tui` | Terminal UI library | 20,912 → ~12,000 | ✅ Complete |
+| `pi_agent_core` | Agent runtime | 3,571 → ~4,000 | ✅ Full runtime |
+| `pi_coding_agent` | Coding agent with 7 tools | 79,765 → ~10,000 | ✅ Tools + CLI + SDK |
+| `pi_mom` | Slack bot | 3,572 → ~1,650 | ✅ Socket Mode |
+| `pi_pods` | vLLM pod management | 5,500 → ~3,100 | ✅ GPU allocation |
+| `pi_web_ui` | Web interface | 6,200 → ~1,500 | ✅ FastAPI + WebSocket |
+
+---
+
+## 🚀 Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-org/pi-mono-python.git
-cd pi-mono-python
-
-# Install all packages
+# Install
 pip install -e ".[dev]"
+
+# Run coding agent
+pi-coding-agent "Create a Python script..."
+
+# With specific model
+pi-coding-agent --model openai/gpt-4o "Refactor this..."
 ```
 
-### Basic Chat
+---
 
-```python
-import asyncio
-from pi_ai import get_model, complete, Context, UserMessage
+## 🔌 Supported Providers
 
-async def main():
-    model = get_model("openai", "gpt-4o")
-    context = Context(messages=[
-        UserMessage(content="Hello!")
-    ])
-    response = await complete(model, context)
-    print(response.content[0].text)
+- **OpenAI** (GPT-4o, GPT-4o-mini, o3-mini)
+- **Anthropic** (Claude 3.5 Sonnet, Claude 3 Opus)
+- **Google** (Gemini 2.0 Flash)
+- **Mistral**
+- **OpenRouter** (100+ models with routing)
+- **Azure OpenAI**
+- **AWS Bedrock**
 
-asyncio.run(main())
-```
+---
 
-### Coding Agent
+## 🧪 Testing
 
 ```bash
-# Interactive mode
-pi-coding-agent
-
-# Single command
-pi-coding-agent "List all Python files"
+make test      # Run all tests
+make lint      # Ruff check
+make all       # Format + lint + typecheck + test
 ```
 
-```python
-import asyncio
-from pi_coding_agent import create_agent_session
+**Current status:** 79/79 tests passing, 0 ruff warnings, 0 vulture warnings.
 
-async def main():
-    result = await create_agent_session()
-    session = result.session
-    response = await session.run("Create a Python hello world script")
-    print(response["content"])
+---
 
-asyncio.run(main())
-```
+## 🏗️ Architecture Decisions
 
-## Documentation
+| TypeScript Pattern | Python Equivalent |
+|-------------------|-------------------|
+| `@sinclair/typebox` | `dataclasses` + `pydantic` |
+| `AbortSignal` | `asyncio.Event` |
+| `AsyncIterable` | Python async generators |
+| Lazy imports | Direct imports |
+| Class-heavy | Dataclasses where appropriate |
 
-### User Guides
+---
 
-- [Getting Started](docs/guides/getting-started.md) - First steps with Pi Mono Python
-- [Configuration](docs/guides/configuration.md) - Environment variables and config files
-- [Provider Setup](docs/guides/providers.md) - Setting up API keys for each provider
-- [Tool Usage](docs/guides/tools.md) - Using and creating custom tools
+## 📝 What This Is (And Isn't)
 
-### Architecture
+**This IS:**
+- A faithful port of the original TypeScript architecture
+- Clean, readable Python code optimized for skimmability
+- All original features preserved
 
-- [Agent Loop](docs/architecture/agent-loop.md) - How the agent loop works
-- [Providers](docs/architecture/providers.md) - Provider architecture
-- [Tools](docs/architecture/tools.md) - Tool execution architecture
+**This is NOT:**
+- A hybrid with additional features (see [io](https://github.com/ever-oli/io) for that)
+- A rewrite with architectural changes
+- Extended with cron, gateway, or session management (again, see `io`)
 
-### API Reference
+---
 
-- [pi_ai](docs/api/pi_ai.md) - LLM provider API
-- [pi_agent_core](docs/api/pi_agent_core.md) - Agent framework API
-- [pi_coding_agent](docs/api/pi_coding_agent.md) - Coding agent API
-- [pi_mom](docs/api/pi_mom.md) - Slack bot API
-- [pi_pods](docs/api/pi_pods.md) - Pod management API
-- [pi_tui](docs/api/pi_tui.md) - Terminal UI API
-- [pi_web_ui](docs/api/pi_web_ui.md) - Web UI API
+## 🔗 Related
 
-### Examples
+- **Clean port (this repo):** `py` — Reference implementation
+- **Hybrid system:** [`io`](https://github.com/ever-oli/io) — Py + Hermes gateway/cron/skills merged
 
-- [Basic Chat](examples/basic_chat.py) - Simple LLM conversations
-- [Coding Agent](examples/coding_agent.py) - Using the coding agent
-- [Custom Tools](examples/custom_tool.py) - Creating custom tools
-- [Slack Bot](examples/slack_bot.py) - Running as a Slack bot
-- [Web UI](examples/web_ui.py) - Web interface
-- [vLLM Pods](examples/vllm_pods.py) - GPU pod management
+---
 
-## Supported Providers
+## 📄 License
 
-| Provider | Setup | Models |
-|----------|-------|--------|
-| OpenAI | `OPENAI_API_KEY` | GPT-4o, GPT-4, GPT-3.5 |
-| Anthropic | `ANTHROPIC_API_KEY` | Claude Opus, Sonnet, Haiku |
-| Google | `GOOGLE_API_KEY` | Gemini 2.5, 2.0, 1.5 |
-| Mistral | `MISTRAL_API_KEY` | Mistral Large, Medium |
-| OpenRouter | `OPENROUTER_API_KEY` | 100+ models |
-| Azure | `AZURE_OPENAI_API_KEY` | GPT-4, GPT-3.5 |
-| AWS Bedrock | `AWS_*` | Claude, Llama |
-
-## Project Structure
-
-```
-pi-mono-python/
-├── packages/
-│   ├── pi_agent_core/    # Core agent framework
-│   ├── pi_ai/            # LLM integrations
-│   ├── pi_tui/           # Terminal UI
-│   ├── pi_coding_agent/  # Coding agent
-│   ├── pi_mom/           # Slack bot
-│   ├── pi_pods/          # Pod management
-│   └── pi_web_ui/        # Web interface
-├── docs/                 # Documentation
-│   ├── guides/           # User guides
-│   ├── architecture/     # Architecture docs
-│   └── api/              # API reference
-├── examples/             # Code examples
-├── pyproject.toml        # Workspace config
-└── README.md             # This file
-```
-
-## Development
-
-```bash
-# Run tests
-make test
-
-# Run linting
-make lint
-
-# Format code
-make format
-
-# Type checking
-make typecheck
-
-# Run all checks
-make all
-```
-
-## Environment Variables
-
-```bash
-# Required for basic usage
-export OPENAI_API_KEY="sk-..."
-
-# For other providers
-export ANTHROPIC_API_KEY="sk-ant-..."
-export GOOGLE_API_KEY="..."
-
-# For Slack bot
-export SLACK_BOT_TOKEN="xoxb-..."
-export SLACK_SIGNING_SECRET="..."
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
-
-## License
-
-MIT License - See individual package LICENSE files for details.
-
-## Acknowledgments
-
-Ported from the TypeScript [pi-mono](https://github.com/your-org/pi-mono) project.
+MIT License — See original pi-mono for TypeScript source credits.

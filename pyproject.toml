@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pi-mono-python"
 version = "0.1.0"
-description = "Pi Mono Python - A monorepo for Pi ecosystem packages"
+description = "Pi Mono Python - Clean TypeScript to Python port of the pi-mono ecosystem"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.11"
@@ -35,7 +35,6 @@ packages = [
     "packages/pi_mom/src/pi_mom",
     "packages/pi_pods/src/pi_pods",
     "packages/pi_web_ui/src/pi_web_ui",
-    "packages/io_cli/src/io_cli",
 ]
 
 [tool.hatch.envs.default]
